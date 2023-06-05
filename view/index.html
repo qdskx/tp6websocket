@@ -239,7 +239,7 @@
                             <figure class="avatar user-online">
 <!--                                <img src="images/user-2.png" alt="image">-->
                             </figure>
-                            <div class="list-body" onclick="getRecentChat({$item.id})">
+                            <div id="recent_{$item.id}" class="list-body" onclick="getRecentChat({$item.id})">
                                 <div class="chat-bttn">
                                     <h3 class="mb-0 mt-2">{$item.user_name}</h3>
 <!--                                    <p>What's up, how are you?</p>-->
@@ -1034,8 +1034,9 @@
             <!-- chat header -->
             <!-- chat body -->
             <div class="chat-body" style="overflow: hidden;outline: none;">
+                <input type="hidden" name="dialogueUid" id="dialogueUid">
+
                 <div class="messages-content">
-                    <input type="hidden" name="dialogueUid" id="dialogueUid">
 
                     <div class="message-item">
                         <div class="message-user">
@@ -1139,25 +1140,8 @@
         console.log('当前用户id',currentUid)
         if(!nowChart || currentUid === nowChart)return;
         getRecentChat(nowChart);
+        console.log(stringify($onLine));
     });
-
-    function getOnline(){
-        $.ajax({
-            type:'get',
-            url:'onLine',
-            success:function (ret){
-                // console.log('online_ret', ret)
-                if(ret.code !== 10000 || ret.data.length === 0)return;
-
-                var onLineHtml = '';
-                $.each(ret.data, function (i,item){
-                    onLineHtml += "<li class='chat-list-item'><figure class='avatar user-online'><img src='images/user-2.png' alt='image'></figure><div class='list-body' onclick='getRecentChat("+item.id+")'><div class='chat-bttn'><h3 class='mb-0 mt-2'>"+item.user_name+"</h3><p>What's up, how are you?</p></div><div class='list-action mt-2 text-right'><div class='message-count bg-primary'>3</div><small class='text-primary'>03:41 PM</small></div></div></li>"
-                })
-
-                $("#chart").html(onLineHtml);
-            }
-        })
-    }
 </script>
 
 
@@ -1173,13 +1157,16 @@
     socket.on('connectCallback' , function (data) {
         console.log('连接成功的回调',data);
 
-        var onLineHtml = '';
-        onLineHtml += "<li class='chat-list-item'><figure class='avatar user-online'><img src='images/user-2.png' alt='image'></figure><div class='list-body' onclick='getRecentChat("+data.id+")'><div class='chat-bttn'><h3 class='mb-0 mt-2'>"+data.user_name+"</h3><p>What's up, how are you?</p></div><div class='list-action mt-2 text-right'><div class='message-count bg-primary'>3</div><small class='text-primary'>03:41 PM</small></div></div></li>"
+        if(data !== null){
+            var onLineHtml = '';
+            onLineHtml += "<li class='chat-list-item'><figure class='avatar user-online'><img src='images/user-2.png' alt='image'></figure><div class='list-body' onclick='getRecentChat("+data.id+")'><div class='chat-bttn'><h3 class='mb-0 mt-2'>"+data.user_name+"</h3><p>What's up, how are you?</p></div><div class='list-action mt-2 text-right'><div class='message-count bg-primary'>3</div><small class='text-primary'>03:41 PM</small></div></div></li>"
 
-        $("#chart").append(onLineHtml);
+            $("#chart").append(onLineHtml);
+        }
+
     })
     socket.on('messageCallback' , function (data) {
-        console.log('messageCallback' , data.id, '来自',data.from, uid)
+        console.log('messageCallback' , data.info.id, '收', '来自',data.from, '当前登录用户id',uid)
         // return;
         if(data.from === uid)return;
         html = '<div class="message-item">';
@@ -1187,7 +1174,7 @@
         html += '<figure class="avatar">';
         // html += '<img src="images/user-1.png" alt="image">';
         html += '</figure><div>';
-        html += '<h5>'+data.user_name;
+        html += '<h5>'+data.info.user_name;
         html += '</h5>';
         html += '<div class="time">01:35 PM<i class="ti-double-check text-info"></i></div>';
         html += '</div>';
@@ -1239,6 +1226,9 @@
     });
 
 
+    /*
+    获取和某一个用户的聊天记录
+     */
     function getRecentChat(nowUid){
         console.log('从在线用户列表拿到的用户Id',nowUid)
         $('#dialogueUid').val(nowUid);
@@ -1250,18 +1240,28 @@
                 console.log('ret', ret)
                 if(ret.code !== 10000 || ret.data.length === 0)return;
 
-                console.log('fshdcdsh', res)
+                console.log('fshdcdsh', ret.data)
                 var recentChart = '';
+                var dialogueUname = ret.data.data_and;
+                // ret.data.splice('data_and', 1)
                 $.each(ret.data, function (i, item){
-                    recentChart += "<div class='message-item'><div class='message-user'><figure class='avatar'></figure><div><h5>"
-                        +item.user_name+
-                        "</h5><div class='time'>"+ "01:35 PM" +"</div></div></div><div class='message-wrap'>"+ item.msg +"</div></div>"
+                    if(item.from_id==nowUid){
+                        recentChart += "<div class='message-item outgoing-message'>";
+                    }else{
+                        recentChart += "<div class='message-item'>";
+                    }
+                    recentChart += "<div class='message-user'><figure class='avatar'></figure><div><h5>";
+                    if(item.from_id == nowUid){
+                        recentChart += {$userInfo['user_name']}
+                    }else{
+                        recentChart += dialogueUname;
+                    }
+                    recentChart += "</h5><div class='time'>"+ item.created +"</div></div></div><div class='message-wrap'>"+ item.msg +"</div></div>"
                 })
-                $("div.messages-content").append(recentChart);
+                $("div.messages-content").html(recentChart);
             },
         });
     }
-
 
 
 </script>

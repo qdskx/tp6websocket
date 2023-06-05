@@ -2,6 +2,7 @@
 namespace app\controller;
 
 use app\BaseController;
+use app\Model\Chat;
 use think\facade\Cache;
 use think\facade\Session;
 use think\facade\View;
@@ -11,7 +12,9 @@ class Index extends BaseController
 {
     public function index(){
         $uid = Session::get('uid');
-        if(!$uid)return View::fetch('/login');
+        if(!$uid){
+            return View::fetch('/login');
+        }
 
         //TODO 在线用户列表
         $redis = Cache::store('redis')->handler();
@@ -28,10 +31,15 @@ class Index extends BaseController
 
     public function recent(){
         $chartUid = input('recent_id');
+        $data = Chat::whereIn('from_id', [Session::get('uid'),$chartUid])
+            ->whereIn('recv_id', [Session::get('uid'),$chartUid])
+            ->order('id asc')->select()->toArray();
+        $dataAnd = Users::find($chartUid);
+        $data['data_and'] = $dataAnd['user_name'] ?? '';
         return json([
             'code' => 10000,
             'message' => '操作成功',
-            'data' => [],
+            'data' => $data,
         ]);
     }
 

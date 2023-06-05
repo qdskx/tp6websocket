@@ -48,7 +48,7 @@ class RoomMassmess
         else if($fd == $fromFd)$retFd = $fromUid;
 
         var_dump('retuid', $retFd, 'fd', $fd, 'recv_uid', $recvUid);
-        $fromUserInfo = Users::find($retFd);
+        $fromUserInfo['info'] = Users::find($retFd);
         $fromUserInfo['msg'] = $mess;
         $fromUserInfo['from'] = $fromUid;
 

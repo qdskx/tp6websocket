@@ -59,10 +59,9 @@
 
   function loginRequest(){
 
-    $.post('doLogin', {
+    $.post('/user/doLogin', {
       user_name: $('#username').val()
     },function (ret){
-        console.log('dfghjk');
         console.log(ret.code,ret.data)
         if(ret.code === 10000){
             console.log('登录成功');

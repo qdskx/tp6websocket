@@ -25,23 +25,10 @@ class RoomConnect
         $fd = $ws->getSender();
         var_dump('connect', $fd.PHP_EOL);
 
-        $data = [
-            'mess' =>   $fd.'已连接',
-            'user' =>   $fd,
-        ];
-
         $redis = Cache::store('redis')->handler();
-
         $currentUserInfo = Users::find($currentUid);
-
-
         $redis->hset('uid_to_fd', $currentUid, $fd);
         $redis->hset('fd_to_uid', $fd, $currentUid);
-
-
-
-
-
 
 
         $ws->broadcast()->emit('connectCallback', $currentUserInfo);

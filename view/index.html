@@ -1131,12 +1131,8 @@
 
 <script>
     $(document).ready(function(){
-
-        // setInterval("getOnline()",3000);
-
         var nowChart = {$onLine[0]['id'] ?? 0};
         var currentUid = $('#uid').val();
-        console.log('在线用户列表第一个用户的Id',nowChart)
         console.log('当前用户id',currentUid)
         if(!nowChart || currentUid === nowChart)return;
         getRecentChat(nowChart);
@@ -1151,18 +1147,19 @@
     socket.on('connect' , function () {
         console.log('连接成功');
         $('#pagetour').find('.tour-close-btn').click();
-
     })
     socket.on('connectCallback' , function (data) {
-        console.log('连接成功的回调',data, data.id, uid);
+        console.log('连接成功的回调', data.id, uid);
+
+        // 获取所有的在线人的li
         var allRecentChat = $('#chart').children('li');
         var existed = []
+        // 遍历存到数组里
         $.each(allRecentChat, function (i, item){
             existed.push($(this).attr('test'));
         })
         var connnectRetUid = data.id.toString();
 
-        console.log('start',existed, data.id,connnectRetUid, 'end')
         if(data && !existed.includes(connnectRetUid)){
             var onLineHtml = '';
             onLineHtml += "<li class='chat-list-item' test="+data.id+"><figure class='avatar user-online'><img src='images/user-2.png' alt='image'></figure><div class='list-body' onclick='getRecentChat("+data.id+")'><div class='chat-bttn'><h3 class='mb-0 mt-2'>"+data.user_name+"</h3><p>What's up, how are you?</p></div><div class='list-action mt-2 text-right'><div class='message-count bg-primary'>3</div><small class='text-primary'>03:41 PM</small></div></div></li>"
@@ -1173,10 +1170,9 @@
     })
     socket.on('closeCallback' , function (data) {
         console.log('下线', data);
-
     })
     socket.on('messageCallback' , function (data) {
-        console.log('messageCallback' , data.info.id, '收', '来自',data.from, '当前登录用户id',uid)
+        console.log('messageCallback', '来自', data.from,'的消息，',data.rece,'接收')
         // return;
         if(data.from === uid)return;
         html = '<div class="message-item">';
@@ -1218,11 +1214,11 @@
         html += '<div class="message-wrap">' + mess + '</div>';
         html += '</div>';
 
-        console.log('发送的消息', $('#uid').val(), $('#dialogueUid').val())
+        console.log('发送的消息', uid, $('#dialogueUid').val())
 
         socket.emit('message' , {
             mess : mess,
-            from_user: $('#uid').val(),
+            from_user: uid,
             recv_user: $('#dialogueUid').val(),
         })
 
@@ -1247,10 +1243,8 @@
             url:"recent",
             data: {'recent_id':nowUid},
             success:function (ret){
-                console.log('ret', ret, nowUid)
                 if(ret.code !== 10000 || ret.data.data.length === 0)return;
 
-                console.log('fshdcdsh', ret.data.data)
                 var recentChart = '';
                 var dialogueUname = ret.data.uname;
                 $.each(ret.data.data, function (i, item){
@@ -1261,7 +1255,7 @@
                     }
                     recentChart += "<div class='message-user'><figure class='avatar'></figure><div>";
                     if(item.from_id == nowUid){
-                        recentChart += '<h5>'+{$userInfo['user_name']}
+                        recentChart += '<h5>'+$('#user_name').val();
                     }else{
                         recentChart += '<h5>'+dialogueUname;
                     }

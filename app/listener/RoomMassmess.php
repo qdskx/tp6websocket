@@ -47,11 +47,16 @@ class RoomMassmess
         if($fd == $recvFd)$retFd = $recvUid;
         else if($fd == $fromFd)$retFd = $fromUid;
 
-        var_dump('retuid', $retFd, 'fd', $fd, 'recv_uid', $recvUid);
         $fromUserInfo['info'] = Users::find($retFd);
         $fromUserInfo['msg'] = $mess;
         $fromUserInfo['from'] = $fromUid;
+        $fromUserInfo['rece'] = $recvUid;
 
+        dump('来自：uid:',$fromUid);
+        dump('来自：fd:',$fromFd);
+        dump('接受：uid:',$recvUid);
+        dump('接受：fd:',$recvFd);
+        dump('当前：fd:',$fd);
 
         $ws->to($recvFd)->emit('messageCallback', $fromUserInfo);
 //        $ws->broadcast()->emit('messageCallback', $data);  // 自己收不到

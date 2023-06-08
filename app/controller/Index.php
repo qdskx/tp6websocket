@@ -29,6 +29,13 @@ class Index extends BaseController
         return View::fetch('/index', ['userInfo'=>$userinfo, 'onLine'=>$onLineUser]);
     }
 
+    /**
+     * 两人最近的聊天记录
+     * @return \think\response\Json
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
     public function recent(){
         $chartUid = input('recent_id');
         $data = Chat::whereIn('from_id', [Session::get('uid'),$chartUid])
@@ -41,21 +48,6 @@ class Index extends BaseController
             'code' => 10000,
             'message' => '操作成功',
             'data' => $ret,
-        ]);
-    }
-
-    public function onLineUser(){
-        $uid = Session::get('uid');
-
-        $redis = Cache::store('redis')->handler();
-        $onLineUserId = $redis->hkeys('uid_to_fd');
-        $onLineUser = Users::whereIn('id', $onLineUserId)->where('id','<>',$uid)->select()->toArray();
-        dump($onLineUser);
-
-        return json([
-            'code' => 10000,
-            'message' => '操作成功',
-            'data' => $onLineUser,
         ]);
     }
 

@@ -19,7 +19,6 @@ Route::group('user', function (){
 
 Route::group('home', function (){
     Route::get('index', 'Index/index');
-    Route::get('onLine', 'Index/onLineUser');
     Route::post('recent', 'Index/recent');
 });
 

@@ -30,8 +30,6 @@ class RoomClose
             'mess' =>   $fd.'断开连接',
             'user' =>   $fd,
         ];
-//        $redis = Cache::store('redis')->handler();
-//        $redis->hdel('all_fd', $fd);
 
         $redis = Cache::store('redis')->handler();
         $leaveUid = $redis->hget('fd_to_uid', $fd);
@@ -40,7 +38,7 @@ class RoomClose
 
 
 //        $ws->broadcast()->emit('close', $fd.'断开连接');
-        $ws->broadcast()->emit('connectCallback', $data);
+        $ws->broadcast()->emit('closeCallback', $data);
         // 用户关闭浏览器时，这个用户进入过的所有房间会全部退出
     }
 }

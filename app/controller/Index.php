@@ -35,11 +35,12 @@ class Index extends BaseController
             ->whereIn('recv_id', [Session::get('uid'),$chartUid])
             ->order('id asc')->select()->toArray();
         $dataAnd = Users::find($chartUid);
-        $data['data_and'] = $dataAnd['user_name'] ?? '';
+        $ret['uname'] = $dataAnd['user_name'] ?? '';
+        $ret['data'] = $data;
         return json([
             'code' => 10000,
             'message' => '操作成功',
-            'data' => $data,
+            'data' => $ret,
         ]);
     }
 
